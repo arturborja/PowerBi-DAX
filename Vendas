@@ -1,0 +1,20 @@
+Vendas DAX
+
+
+//RESUMO_VENDAS_3_
+//calculo de relação com a planilha de custo 
+Custo = RELATED(CUSTO_ESTOQUE[VALOR])
+
+//Resumo vendas etapas aplicadas power Query
+= Table.TransformColumnTypes(RESUMO_VENDAS_3_View,{{"VALOR_PAGO", Currency.Type}, {"VALOR", Currency.Type}})
+= Table.AddColumn(#"Tipo Alterado", "Ticket medio", each [VALOR_PAGO]/[QUANTIDADE])
+= Table.RemoveColumns(#"Personalização Adicionada",{"Ticket medio"})
+= Table.AddColumn(#"Colunas Removidas", "Semana do Ano", each Date.WeekOfYear([DATAVENDA]), Int64.Type)
+= Table.TransformColumnTypes(#"Semana do Ano Inserida",{{"VALOR", Currency.Type}})
+= Table.Distinct(#"Tipo Alterado1", {"ID"})
+
+//CUSTO_ESTOQUE
+//CUSTO_ESTOQUE power Query
+= Table.TransformColumnTypes(CUSTO_ESTOQUE_Table,{{"VALOR", type text}})
+= Table.ReplaceValue(#"Tipo Alterado1",".",",",Replacer.ReplaceText,{"VALOR"})
+= Table.TransformColumnTypes(#"Valor Substituído",{{"VALOR", Currency.Type}})

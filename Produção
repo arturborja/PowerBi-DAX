@@ -1,0 +1,58 @@
+//PowerBi produção
+//TABELA BIPE_entrada:
+
+//Coluna de bobinador por mudança ocorrida na coluna bobinador com a adição de usuario do bipe
+Bobinador real = IF('BIPE_entrada&Saida'[BOBINADOR]="",'BIPE_entrada&Saida'[USUARIO],'BIPE_entrada&Saida'[BOBINADOR])
+
+//Coluna custo
+valor de custon = RELATED('CUSTO_ESTOQUE'[VALOR])
+
+//Coluna custo total da linha
+Custototalprod = 'BIPE_entrada&Saida'[valor de custon]*'BIPE_entrada&Saida'[Qnt Produzida]
+
+//Coluina transformação PESO grama em KG
+KG produzido = 'BIPE_entrada&Saida'[PESO]/1000
+
+//BIPE_entrada&Saida antiga tabela "REGISTROS" Power Query
+= Table.AddIndexColumn(REGISTROS_Table, "Índice", 0, 1, Int64.Type)
+= Table.RemoveColumns(#"Índice Adicionado",{"Índice"})
+= Table.DuplicateColumn(#"Colunas Removidas", "QRCODE", "QRCODE - Copiar")
+= Table.TransformColumns(#"Coluna Duplicada", {{"QRCODE - Copiar", each Text.Start(_, 9), type text}})
+= Table.RenameColumns(#"Primeiros caracteres extraídos",{{"QRCODE - Copiar", "SKU"}})
+= Table.AddColumn(#"Colunas Renomeadas1", "Personalizar", each 1)
+= Table.TransformColumnTypes(#"Personalização Adicionada",{{"Personalizar", type number}})
+= Table.Sort(#"Tipo Alterado",{{"USUARIO", Order.Ascending}})
+= Table.RenameColumns(#"Linhas Classificadas",{{"Personalizar", "Qnt Produzida"}})
+= Table.RenameColumns(#"Linhas Classificadas",{{"Personalizar", "Qnt Produzida"}})
+
+
+//CODIGO
+//Transformação da planilha vendas_3 para codigo Power Query
+= Table.Sort(RESUMO_VENDAS_3_View,{{"DATAVENDA", Order.Descending}})
+= Table.RenameColumns(#"Linhas Classificadas",{{"QUANTIDADE", "QUANTIDADE vendida"}})
+= Table.RemoveColumns(#"Colunas Renomeadas",{"ID", "ANO", "MES", "VENDEDOR", "LOJA", "DATAVENDA", "VALOR", "PESO", 
+= Table.SelectRows(#"Colunas Removidas", each true)
+
+CUSTO ESTOQUE
+//Custos estoque power Query
+= Table.ReplaceValue(CUSTO_ESTOQUE_Table,".",",",Replacer.ReplaceText,{"VALOR"})
+= Table.TransformColumnTypes(#"Valor Substituído",{{"VALOR", type number}})
+= Table.DuplicateColumn(#"Tipo Alterado", "VALOR", "VALOR - Copiar")
+= Table.RenameColumns(#"Coluna Duplicada",{{"VALOR - Copiar", "Valor *qnt"}})
+= Table.RemoveColumns(#"Colunas Renomeadas",{"Valor *qnt"})
+
+
+//PRODUÇÂO:
+//Coluna de quantidade entrada no estoque 
+Qnt estocada = PRODUCAO[QTD_MATERIAL]-PRODUCAO[PERDA]
+
+
+//Produção power query
+= Table.TransformColumnTypes(PRODUCAO_Table,{{"PERDA", type number}, {"ORDEMDEPRODUCAO", type text}})
+= Table.ReplaceValue(#"Tipo Alterado",0,0,Replacer.ReplaceValue,{"PERDA"})
+= Table.ReplaceErrorValues(#"Valor Substituído", {{"PERDA", 0}})
+= Table.ReplaceValue(#"Erros Substituídos",0,0,Replacer.ReplaceValue,{"PERDA"})
+= Table.Sort(#"Valor Substituído1",{{"DATA_PRODUCAO", Order.Descending}})
+= Table.ReplaceValue(#"Linhas Classificadas",",,",",",Replacer.ReplaceText,{"QTD_MATERIAL"})
+= Table.TransformColumnTypes(#"Valor Substituído2",{{"QTD_MATERIAL", type number}})
+= Table.ReplaceValue(#"Tipo Alterado1","H",":00",Replacer.ReplaceText,{"TEMPOSECAGEM"})

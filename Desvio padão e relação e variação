@@ -1,0 +1,11 @@
+Média de Qnt Produzida por Mês = 
+AVERAGEX(
+	KEEPFILTERS(VALUES('BIPE_entrada&Saida_registros'[DATA].[Mês])),
+	CALCULATE(SUM('BIPE_entrada&Saida_registros'[Qnt Produzida]))
+)
+
+
+
+DP MÊS = DP da amostra = STDEVX.S(	
+    KEEPFILTERS(VALUES('BIPE_entrada&Saida_registros'[DATA].[Mês])),
+	CALCULATE(SUM('BIPE_entrada&Saida_registros'[Qnt Produzida])))
